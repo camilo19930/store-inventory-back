@@ -10,7 +10,8 @@ class Product(db.Model):
     fech_update = db.Column(db.Integer)
 
 
-    def __init__(self, name, description, reference, cant, fech_update):
+    def __init__(self,id, name, description, reference, cant, fech_update):
+        self.id = id
         self.name = name
         self.description = description
         self.reference = reference
