@@ -41,56 +41,29 @@ def createProduct():
 @app.route('/list-product', methods=['GET'])
 def listProduct():
     all_products = QuerysApp.get_products_all()
-    # obtiene los datos de la base de datos
     result = products_schema.dump(all_products)
-    print(result)
     return jsonify(result)
 
+@app.route('/product/<id>', methods=['PUT'])
+def product_update(id):
+    name = request.json['name']
+    description = request.json['description']
+    reference = request.json['reference']
+    cant = request.json['cant']
+    fech_update = request.json['fech_update']
 
-# @app.route('/list-product/<id>', methods=['GET'])
-# def get_persona(id):
-#     product = Product.query.get(id)
-#     return product_schema.jsonify(product)
-
-# @app.route('/add-product-posgresql', methods=['GET'])
-# def createProduct2():
-#     conn = psycopg2.connect(
-#     dbname="bd_inventory",
-#     user="postgres",
-#     password="root",
-#     host="localhost",
-#     port="5432"
-#     )
-#     cursor = conn.cursor()
-#     query = ''' SELECT *FROM product'''
-#     cursor.execute(query)
-#     row = cursor.fetchall()
-#     print('**********************')
-#     print(row)  
-#     conn.commit()
-#     conn.close()
-
-# @app.route('/add-product', methods=['POST'])
-# def createProduct():
-#     name = request.json['name']
-#     description = request.json['description']
-#     reference = request.json['reference']
-#     cant = request.json['cant']
-#     fech_update = request.json['fech_update']
-#     try:
-#         cursor = conn.cursor()
-#         query = ''' INSERT INTO product( id, name, description, reference, cant, fech_update) VALUES (%s, %s, %s, %s, %s, %s)'''
-#         cursor.execute(query, (16, name, description, reference, cant, fech_update))
-#         print('Datos insertados')
-#         conn.commit()
-#         conn.close()
-#         return 'OK'
-#     except:
-#         print("ERRRRO")
-#         return 'MAL'
+    update_product = Product(None, name, description, reference, cant, fech_update)
+    cursor = conn.cursor()
+    query = ''' UPDATE product SET id=%s, name=%s, description=%s, reference=%s, cant=%s, fech_update=%s WHERE id=%s'''
+    cursor.execute(query, (id, name, description, reference, cant, fech_update, id))
+    conn.commit()
+    return product_schema.jsonify(update_product)
 
 
-
+@app.route('/list-product/<id>', methods=['GET'])
+def get_persona(id):
+    product = Product.query.get(id)
+    return product_schema.jsonify(product)
 
 
 if __name__ == '__main__':
