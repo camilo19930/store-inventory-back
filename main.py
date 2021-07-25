@@ -16,11 +16,9 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 global conn
 conn = psycopg2.connect( dbname="bd_inventory", user="postgres", password="root", host="localhost", port="5432" )
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:root@localhost:5432/bd_inventory"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)        # Devuele instancia de base de datos
-# # Lee toda la clase y procede a crear la tabla
-# db.create_all()
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/inventory_bd'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.create_all()
 
 product_schema = ProductSchema()
 products_schema = ProductSchema(many=True)
@@ -59,11 +57,17 @@ def product_update(id):
     conn.commit()
     return product_schema.jsonify(update_product)
 
+@app.route('/delete-product/<id>', methods=['DELETE'])
+def delete_product(id):
+    print(f'El id es: {id}')
+    cursor = conn.cursor()
+    query = '''DELETE FROM public.product WHERE id=%s'''
+    cursor.execute(query, (id))
+    # ((product_schema), each['id'])
+    conn.commit()
+    conn.close()
+    return {'message': f'Producto con id {id} fue eliminado con exito'}
 
-@app.route('/list-product/<id>', methods=['GET'])
-def get_persona(id):
-    product = Product.query.get(id)
-    return product_schema.jsonify(product)
 
 
 if __name__ == '__main__':
